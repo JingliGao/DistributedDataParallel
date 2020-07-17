@@ -18,13 +18,3 @@ print(f.read())
 
 
 
-"""
-def read_file(filepath):
-    with open(filepath) as fp:
-        content = fp.read();
-    return content
-
-
-ret = read_file('IP')
-print(ret)
-"""
