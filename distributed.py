@@ -24,7 +24,7 @@ def main():
 
     args = parser.parse_args()
     args.world_size = args.gpus * args.nodes
-    os.environ['MASTER_ADDR'] = '10.151.40.224'
+    os.environ['MASTER_ADDR'] = os.environ['PAI_HOST_IP_taskrole_0']
     os.environ['MASTER_PORT'] = '21000'
     mp.spawn(train, nprocs=args.gpus, args=(args,))
 
