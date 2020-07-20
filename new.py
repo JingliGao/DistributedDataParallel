@@ -18,14 +18,14 @@ def main():
     parser.add_argument('-g', '--gpus', default=1, type=int,
                         help='number of gpus per node')
     #parser.add_argument('-nr', '--nr', default=0, type=int,
-    #                   help='ranking within the nodes')
+    #                    help='ranking within the nodes')
     parser.add_argument('--epochs', default=2, type=int, metavar='N',
                         help='number of total epochs to run')
 
     args = parser.parse_args()
     args.world_size = args.gpus * args.nodes
-    os.environ['MASTER_ADDR'] = os.environ['PAI_HOST_IP_taskrole_0']
-    os.environ['MASTER_PORT'] = os.environ['PAI_PORT_LIST_taskrole1_0_SynPort']
+    os.environ['MASTER_ADDR'] = os.environ['PAI_HOST_IP_master_0']
+    os.environ['MASTER_PORT'] = '36340'#os.environ['PAI_master_0_SynPort_PORT']
     mp.spawn(train, nprocs=args.gpus, args=(args,))
 
 
