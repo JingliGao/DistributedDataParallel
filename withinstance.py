@@ -17,8 +17,8 @@ def main():
                         help='number of data loading workers (default: 4)')
     parser.add_argument('-g', '--gpus', default=1, type=int,
                         help='number of gpus per node')
-    parser.add_argument('-nr', '--nr', default=0, type=int,
-                        help='ranking within the nodes')
+    #parser.add_argument('-nr', '--nr', default=0, type=int,
+    #                    help='ranking within the nodes')
     parser.add_argument('--epochs', default=2, type=int, metavar='N',
                         help='number of total epochs to run')
 
@@ -53,7 +53,7 @@ class ConvNet(nn.Module):
 
 
 def train(gpu, args):
-    rank = os.environ['PAI_TASK_INDEX'] * args.gpus + gpu
+    rank = args.nr * args.gpus + gpu
     dist.init_process_group(backend='nccl', init_method='env://', world_size=args.world_size, rank=rank)
     torch.manual_seed(0)
     model = ConvNet()
