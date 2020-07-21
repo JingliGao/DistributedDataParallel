@@ -23,8 +23,8 @@ def main():
                         help='number of total epochs to run')
     args = parser.parse_args()
     args.world_size = args.gpus * args.nodes
-    os.environ['MASTER_ADDR'] = '10.57.23.164'
-    os.environ['MASTER_PORT'] = '8888'
+    os.environ['MASTER_ADDR'] = os.environ['PAI_HOST_IP_worker_0']#'10.57.23.164'
+    os.environ['MASTER_PORT'] = os.environ['PAI_worker_0_SynPort_PORT']#'8888'
     mp.spawn(train, nprocs=args.gpus, args=(args,))
 
 
@@ -52,7 +52,7 @@ class ConvNet(nn.Module):
 
 
 def train(gpu, args):
-    rank = args.nr * args.gpus + gpu
+    rank = int(os.environ['PAI_TASK_INDEX']) * args.gpus + gpu
     dist.init_process_group(backend='nccl', init_method='env://', world_size=args.world_size, rank=rank)
     torch.manual_seed(0)
     model = ConvNet()
