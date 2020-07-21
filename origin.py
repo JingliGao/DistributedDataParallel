@@ -12,6 +12,7 @@ from apex import amp
 
 
 def main():
+    print('run main')
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', '--nodes', default=1, type=int, metavar='N',
                         help='number of data loading workers (default: 4)')
@@ -52,6 +53,7 @@ class ConvNet(nn.Module):
 
 
 def train(gpu, args):
+    print("start train")
     rank = int(os.environ['PAI_TASK_INDEX']) * args.gpus + gpu
     dist.init_process_group(backend='nccl', init_method='env://', world_size=args.world_size, rank=rank)
     torch.manual_seed(0)
