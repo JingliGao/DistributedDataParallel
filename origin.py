@@ -27,6 +27,7 @@ def main():
     print('world_size:',args.world_size)
     os.environ['MASTER_ADDR'] = os.environ['PAI_HOST_IP_worker_0']#'10.57.23.164'
     os.environ['MASTER_PORT'] = os.environ['PAI_worker_0_SynPort_PORT']#'8888'
+    print('master:', os.environ['MASTER_ADDR'], 'port:', os.environ['MASTER_PORT'])
     mp.spawn(train, nprocs=args.gpus, args=(args,))
 
 
