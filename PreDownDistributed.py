@@ -32,7 +32,7 @@ def main():
                                                train=True,
                                                transform=transforms.ToTensor(),
                                                download=True)
-    mp.spawn(train, nprocs=args.gpus, args=(args,),train_dataset=train_dataset)
+    mp.spawn(train, nprocs=args.gpus, args=(args,))
 
 
 class ConvNet(nn.Module):
@@ -58,7 +58,7 @@ class ConvNet(nn.Module):
         return out
 
 
-def train(gpu, args, train_dataset):
+def train(gpu, args):
     print("start train")
     rank = int(os.environ['PAI_TASK_INDEX']) * args.gpus + gpu
     dist.init_process_group(backend='nccl', init_method='env://', world_size=args.world_size, rank=rank)
@@ -73,7 +73,10 @@ def train(gpu, args, train_dataset):
     # Wrap the model
     model = nn.parallel.DistributedDataParallel(model, device_ids=[gpu])
     # Data loading code
-
+    train_dataset = torchvision.datasets.MNIST(root='./data',
+                                               train=True,
+                                               transform=transforms.ToTensor(),
+                                               download=True)
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset,
                                                                     num_replicas=args.world_size,
                                                                     rank=rank)
