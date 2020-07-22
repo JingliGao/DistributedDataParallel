@@ -12,20 +12,26 @@ from apex import amp
 
 
 def main():
+    print('run main')
     parser = argparse.ArgumentParser()
     parser.add_argument('-n', '--nodes', default=1, type=int, metavar='N',
                         help='number of data loading workers (default: 4)')
     parser.add_argument('-g', '--gpus', default=1, type=int,
                         help='number of gpus per node')
-    #parser.add_argument('-nr', '--nr', default=0, type=int,
-    #                    help='ranking within the nodes')
+    parser.add_argument('-nr', '--nr', default=0, type=int,
+                        help='ranking within the nodes')
     parser.add_argument('--epochs', default=2, type=int, metavar='N',
                         help='number of total epochs to run')
-
     args = parser.parse_args()
     args.world_size = args.gpus * args.nodes
-    os.environ['MASTER_ADDR'] = os.environ['PAI_HOST_IP_taskrole_0']
-    os.environ['MASTER_PORT'] = os.environ['PAI_PORT_LIST_taskrole1_0_SynPort']
+    print('world_size:',args.world_size)
+    os.environ['MASTER_ADDR'] = os.environ['PAI_HOST_IP_worker_0']
+    os.environ['MASTER_PORT'] = os.environ['PAI_worker_0_SynPort_PORT']
+    print('master:', os.environ['MASTER_ADDR'], 'port:', os.environ['MASTER_PORT'])
+    train_dataset = torchvision.datasets.MNIST(root='./data',
+                                               train=True,
+                                               transform=transforms.ToTensor(),
+                                               download=True)
     mp.spawn(train, nprocs=args.gpus, args=(args,))
 
 
@@ -53,7 +59,8 @@ class ConvNet(nn.Module):
 
 
 def train(gpu, args):
-    rank = args.nr * args.gpus + gpu
+    print("start train")
+    rank = int(os.environ['PAI_TASK_INDEX']) * args.gpus + gpu
     dist.init_process_group(backend='nccl', init_method='env://', world_size=args.world_size, rank=rank)
     torch.manual_seed(0)
     model = ConvNet()
@@ -94,8 +101,8 @@ def train(gpu, args):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            if (i + 1) % 100 == 0 and gpu == 0:
-                print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, args.epochs, i + 1, total_step,
+            #if (i + 1) % 100 == 0 and gpu == 0:
+            print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, args.epochs, i + 1, total_step,
                                                                          loss.item()))
     if gpu == 0:
         print("Training complete in: " + str(datetime.now() - start))
