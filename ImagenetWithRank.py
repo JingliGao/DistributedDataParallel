@@ -123,7 +123,7 @@ def main_worker(gpu, ngpus_per_node, args):
         if args.dist_url == "env://" and args.rank == -1:
             args.rank = int(os.environ["RANK"])
         if args.multiprocessing_distributed:
-            print("default rank:",args.rank)
+            print("env rank:",int(os.environ['PAI_TASK_INDEX']) * ngpus_per_node + gpu)
             # For multiprocessing distributed training, rank needs to be the
             # global rank among all the processes
             # rank = int(os.environ['PAI_TASK_INDEX']) * ngpus_per_node + gpu
@@ -132,7 +132,6 @@ def main_worker(gpu, ngpus_per_node, args):
         os.environ['MASTER_PORT'] = os.environ['PAI_worker_0_SynPort_PORT']
         dist.init_process_group(backend=args.dist_backend, init_method='env://',
                                 world_size=args.world_size, rank = int(os.environ['PAI_TASK_INDEX']) * ngpus_per_node + gpu)
-        print("env rank:",int(os.environ['PAI_TASK_INDEX']) * ngpus_per_node + gpu)
     # create model
     if args.pretrained:
         print("=> using pre-trained model '{}'".format(args.arch))
