@@ -36,7 +36,7 @@ args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 #初始化
-dist.init_process_group(init_method='file:///home/****/nfstest',backend="gloo",world_size=4,group_name="pytorch_test")
+dist.init_process_group(init_method='file:./nfstest',backend="gloo",world_size=4,group_name="pytorch_test")
 
 torch.manual_seed(args.seed)
 if args.cuda:
