@@ -6,13 +6,10 @@ import torchvision
 import torchvision.transforms as transforms
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.distributed as dist
-
-
-from models import *
 from apex.parallel import DistributedDataParallel as DDP
 from apex import amp
-
 
 def main():
     print('run main')
@@ -36,27 +33,25 @@ def main():
     mp.spawn(train, nprocs=args.gpus, args=(args,))
 
 
-class ConvNet(nn.Module):
-    def __init__(self, num_classes=10):
-        super(ConvNet, self).__init__()
-        self.layer1 = nn.Sequential(
-            nn.Conv2d(1, 16, kernel_size=5, stride=1, padding=2),
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2))
-        self.layer2 = nn.Sequential(
-            nn.Conv2d(16, 32, kernel_size=5, stride=1, padding=2),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2))
-        self.fc = nn.Linear(7*7*32, num_classes)
+class Net(nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.conv1 = nn.Conv2d(3, 6, 5)
+        self.conv2 = nn.Conv2d(6, 16, 5)
+        self.fc1 = nn.Linear(16 * 5 * 5, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, 10)
 
     def forward(self, x):
-        out = self.layer1(x)
-        out = self.layer2(out)
-        out = out.reshape(out.size(0), -1)
-        out = self.fc(out)
-        return out
+        x = F.max_pool2d(F.relu(self.conv1(x)), 2)
+        x = F.max_pool2d(F.relu(self.conv2(x)), 2)
+        x = x.view(-1, 16 * 5 * 5)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
+
+
 
 
 def train(gpu, args):
@@ -64,7 +59,7 @@ def train(gpu, args):
     rank = int(os.environ['PAI_TASK_INDEX']) * args.gpus + gpu
     dist.init_process_group(backend='nccl', init_method='env://', world_size=args.world_size, rank=rank)
     torch.manual_seed(0)
-    model=RegNetX_200MF()
+    model=Net()
     torch.cuda.set_device(gpu)
     model.cuda(gpu)
     batch_size = 100
