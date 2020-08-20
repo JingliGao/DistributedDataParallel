@@ -7,6 +7,9 @@ import torchvision.transforms as transforms
 import torch
 import torch.nn as nn
 import torch.distributed as dist
+
+
+from models import *
 from apex.parallel import DistributedDataParallel as DDP
 from apex import amp
 
@@ -61,7 +64,7 @@ def train(gpu, args):
     rank = int(os.environ['PAI_TASK_INDEX']) * args.gpus + gpu
     dist.init_process_group(backend='nccl', init_method='env://', world_size=args.world_size, rank=rank)
     torch.manual_seed(0)
-    model = ConvNet()
+    model=RegNetX_200MF()
     torch.cuda.set_device(gpu)
     model.cuda(gpu)
     batch_size = 100
