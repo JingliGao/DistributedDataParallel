@@ -97,7 +97,7 @@ def train(gpu, args):
         shuffle=True,
     )
     trainloader = torch.utils.data.DataLoader(
-        trainset, batch_size=args.batch_size, shuffle=False, num_workers=2, sampler=trainsampler)
+        trainset, batch_size=batch_size, shuffle=False, num_workers=2, sampler=trainsampler)
 
     testset = torchvision.datasets.CIFAR10(
         root='./data', train=False, download=True, transform=transform_test)
