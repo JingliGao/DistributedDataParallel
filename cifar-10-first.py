@@ -22,6 +22,8 @@ def main():
                         help='ranking within the nodes')
     parser.add_argument('--epochs', default=2, type=int, metavar='N',
                         help='number of total epochs to run')
+    parser.add_argument('--dist-backend', 'backend', default='nccl', type=str,
+                        help='distributed backend')
     args = parser.parse_args()
     args.world_size = args.gpus * args.nodes
     print('world_size:',args.world_size)
@@ -57,7 +59,7 @@ class Net(nn.Module):
 def train(gpu, args):
     print("start train")
     rank = int(os.environ['PAI_TASK_INDEX']) * args.gpus + gpu
-    dist.init_process_group(backend='gloo', init_method='env://', world_size=args.world_size, rank=rank)
+    dist.init_process_group(backend=args.backend, init_method='env://', world_size=args.world_size, rank=rank)
     torch.manual_seed(0)
     model=Net()
     torch.cuda.set_device(gpu)
