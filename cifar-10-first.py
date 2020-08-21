@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 import argparse
 import torch.multiprocessing as mp
+import torch.backends.cudnn as cudnn
 import torchvision
 import torchvision.transforms as transforms
 import torch
