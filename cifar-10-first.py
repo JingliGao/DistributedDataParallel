@@ -31,8 +31,6 @@ def main():
     os.environ['MASTER_ADDR'] = os.environ['PAI_HOST_IP_worker_0']
     os.environ['MASTER_PORT'] = os.environ['PAI_worker_0_SynPort_PORT']
     print('master:', os.environ['MASTER_ADDR'], 'port:', os.environ['MASTER_PORT'])
-    trainset = torchvision.datasets.CIFAR10(
-        root='./data', train=True, download=True)
     mp.spawn(train, nprocs=args.gpus, args=(args,))
 
 
