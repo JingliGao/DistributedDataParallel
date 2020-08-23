@@ -22,6 +22,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('data', metavar='DIR',
                         help='path to dataset')
+    parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet18',
+                        choices=model_names,
+                        help='model architecture: ' +
+                             ' | '.join(model_names) +
+                             ' (default: resnet18)')
     parser.add_argument('-n', '--nodes', default=1, type=int, metavar='N',
                         help='number of data loading workers (default: 4)')
     parser.add_argument('-g', '--gpus', default=1, type=int,
@@ -74,7 +79,7 @@ def train(gpu, args):
     rank = int(os.environ['PAI_TASK_INDEX']) * args.gpus + gpu
     dist.init_process_group(backend=args.dist_backend, init_method='env://', world_size=args.world_size, rank=rank)
     torch.manual_seed(0)
-    model=Net()
+    model=model = models.__dict__[args.arch]()
     torch.cuda.set_device(gpu)
     model.cuda(gpu)
     batch_size = 100
