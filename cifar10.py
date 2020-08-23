@@ -12,10 +12,7 @@ import torch.backends.cudnn as cudnn
 import torchvision
 import torchvision.transforms as transforms
 
-#if not os.path.exists('pytorch-cifar'):
-#    print('Please run init.sh first')
-#    sys.exit(-1)
-#sys.path.append('pytorch-cifar')
+
 #import models
 
 #support_models = ['ResNet18', 'ResNet34', 'GoogLeNet', 'MobileNet', 'MobileNetV2', 'ShuffleNetV2']
