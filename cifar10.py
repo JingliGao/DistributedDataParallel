@@ -30,7 +30,6 @@ def parse_args():
 
     parser.add_argument('--cpu', default=False, action='store_true', help='Only use CPU to train')
     parser.add_argument('--gpuid', default='0', type=str, help='Gpus used for training')
-    parser.add_argument('--arch', choices=support_models, default='ResNet18', help='Network type used for training')
     parser.add_argument('--outdir', type=str, default='./log', help='Outdir of results')
     return parser.parse_args()
 
